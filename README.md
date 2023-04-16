@@ -11,3 +11,7 @@ By working on MusicChat, we aim to develop our skills in Python, Flask, HTML, CS
 ## Third-Party Services Used
 Spotify API and Twilio API. 
 - Spotify provides access to music data, such as track information, while Twilio provides messaging services, allowing users to communicate with each other in real-time.
+
+## Code Execution:
+- To run locally, start the virtual environment:  `source musicChat/bin/activate`
+- then: `export FLASK_APP=__init__.py` followed by `flask run`
