@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="text-center mb-4">Search results</h1>
+
+<div class="search-results">
+    {% for result in results %}
+    <div class="search-result">
+        <img src="{{ result.album.images[1].url }}" alt="Album Art">
+        <h5 class="mt-3">{{ result.name }}</h5>
+        <p>Artist(s): {{ result.artists | join(', ', attribute='name') }}</p>
+        <p>Album: {{ result.album.name }}</p>
+        <div class="options">
+            <a href="#" class="text-primary">
+                <i class="fas fa-play"></i>
+                <span>Play</span>
+            </a>
+            <a href="#" class="text-secondary">
+                <i class="fas fa-plus"></i>
+                <span>Add to Playlist</span>
+            </a>
+            <a href="#" class="text-warning">
+                <i class="fas fa-star"></i>
+                <span>Add to Favorites</span>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="text-center mt-4">
+    <a href="{{ url_for('search') }}" class="btn btn-primary">Back to search</a>
+</div>
+{% endblock %}
