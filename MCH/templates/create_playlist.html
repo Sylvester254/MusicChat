@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Create Playlist</h1>
+<form action="{{ url_for('create_playlist') }}" method="post">
+    {{ form.csrf_token }}
+    {{ form.name.label }} {{ form.name(size=32) }}
+    {{ form.submit() }}
+</form>
+{% endblock %}

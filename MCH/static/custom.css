@@ -70,6 +70,14 @@ footer {
 
 /* search results page*/
 
+
+/* #spotify-player {
+    display: none;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+*/
+
 .search-results {
     display: flex;
     flex-wrap: wrap;

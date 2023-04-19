@@ -3,6 +3,8 @@
 {% block content %}
 
 <h1 class="text-center mb-4">Search results</h1>
+<!-- Spotify player iframe -->
+<iframe id="spotify-player" src="" width="400" height="100" frameborder="0" allowtransparency="true" allow="encrypted-media" style="display: none;"></iframe>
 
 <div class="search-results">
     {% for result in results %}
@@ -12,17 +14,22 @@
         <p>Artist(s): {{ result.artists | join(', ', attribute='name') }}</p>
         <p>Album: {{ result.album.name }}</p>
         <div class="options">
-            <a href="#" class="text-primary">
-                <i class="fas fa-play"></i>
-                <span>Play</span>
-            </a>
-            <a href="#" class="text-secondary">
-                <i class="fas fa-plus"></i>
-                <span>Add to Playlist</span>
-            </a>
+            <button class="btn btn-primary play-button" data-track-id="{{ result.id }}">
+                <i class="fa-solid fa-play fa-beat-fade fa-lg" style="color: #a50314;"></i>
+            </button>            
+            <!-- Add this to the options div -->
+            <select id="playlist-select" class="form-select form-select-sm">
+                <option selected>Choose playlist</option>
+                {% for playlist in current_user.playlists %}
+                <option value="{{ playlist.id }}">{{ playlist.name }}</option>
+                {% endfor %}
+            </select>
+            <button class="add-to-playlist btn btn-secondary btn-sm" data-track-id="{{ result.id }}" data-track-data='{{ result | tojson | replace('"', '&quot;') }}'>Add to Playlist
+            </button>
+            
             <a href="#" class="text-warning">
                 <i class="fas fa-star"></i>
-                <span>Add to Favorites</span>
+                <span>Favorite</span>
             </a>
         </div>
     </div>
@@ -32,4 +39,5 @@
 <div class="text-center mt-4">
     <a href="{{ url_for('search') }}" class="btn btn-primary">Back to search</a>
 </div>
+
 {% endblock %}

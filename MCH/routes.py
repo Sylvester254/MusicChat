@@ -1,11 +1,17 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from wtforms import Form, StringField, PasswordField, validators
+from wtforms import Form, StringField, PasswordField, validators, SubmitField
 from MCH import app, db
 from MCH.models import User, Playlist, Track, ChatMessage
 import requests
 from MCH.spotify import search_spotify
+from flask_wtf import FlaskForm 
+from wtforms.validators import DataRequired
+
+class PlaylistForm(FlaskForm):
+    name = StringField('Playlist Name', validators=[DataRequired()])
+    submit = SubmitField('Create Playlist')
 
 
 # Configure Flask-Login
@@ -93,6 +99,48 @@ def search():
         results = search_spotify(query)
         return render_template('search_results.html', results=results)
     return render_template('search.html')
+
+@app.route('/create_playlist', methods=['GET', 'POST'])
+@login_required
+def create_playlist():
+    form = PlaylistForm(request.form)
+    if request.method == 'POST' and form.validate():
+        playlist = Playlist(name=form.name.data, user_id=current_user.id)
+        db.session.add(playlist)
+        db.session.commit()
+        flash('Playlist created successfully.')
+        return redirect(url_for('index'))
+    return render_template('create_playlist.html', form=form)
+
+@app.route('/add_to_playlist/<playlist_id>', methods=['POST'])
+@login_required
+def add_to_playlist(playlist_id):
+    track_data = request.get_json().get('track_data')
+
+    # Check if the track is already in the playlist
+    existing_track = Track.query.filter_by(playlist_id=playlist_id, spotify_track_id=track_data['id']).first()
+    if existing_track:
+        flash('This track is already in the playlist.')
+        return redirect(request.referrer)
+
+    # Create a new Track object and add it to the playlist
+    track = Track(
+        title=track_data['name'],
+        artist=track_data['artists'],
+        album=track_data['album'],
+        playlist_id=playlist_id,
+        spotify_track_id=track_data['id'],
+        track_uri=track_data['uri'],
+        album_uri=track_data['album_uri'],
+        artist_uri=track_data['artist_uri'],
+        album_cover_url=track_data['album_cover_url'],
+        release_date=track_data['release_date']
+    )
+    db.session.add(track)
+    db.session.commit()
+    flash('Track added to the playlist.')
+    return redirect(request.referrer)
+
 
 
 # Add a route for fetching track details using the Spotify API
