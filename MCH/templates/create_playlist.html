@@ -1,10 +1,64 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Create Playlist</h1>
-<form action="{{ url_for('create_playlist') }}" method="post">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css">
+
+<h1 id="playlist-h1">Playlist</h1>
+<h2>New Playlist</h2>
+<div class="card mb-3 p-3">
+  <form action="{{ url_for('create_playlist') }}" method="post">
     {{ form.csrf_token }}
-    {{ form.name.label }} {{ form.name(size=32) }}
-    {{ form.submit() }}
-</form>
+    <div class="form-group">
+      {{ form.name.label }} {{ form.name(class="form-control", size=32) }}
+    </div>
+    {{ form.submit(class="btn btn-primary create-btn") }}
+  </form>
+</div>
+<!-- Spotify player iframe -->
+<iframe id="spotify-player" src="" width="400" height="100" frameborder="0" allowtransparency="true" allow="encrypted-media" style="display: none;"></iframe>
+
+<div class="container">
+  <h2>Current Playlists</h2>
+  <div class="row">
+    {% for playlist in playlists %}
+    <div class="col-md-4 mb-3">
+      <div class="playlist-card">
+        <div class="playlist-title">{{ playlist.name }}</div>
+        <ul class="track-list">
+          {% for track in playlist.tracks %}
+          <li class="track" data-track-uri="{{ track.track_uri }}">
+            <a class="track-link">
+              <span class="track-title">{{ track.title }}</span>
+              <span class="track-artist">{{ track.artist }}</span>
+              <span class="track-album">{{ track.album }}</span>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+<div id="custom-token-container" data-custom-token="{{ custom_token }}" style="display: none;"></div>
+{% if custom_token %}
+<script>
+  var displayName = "{{ current_user.display_name }}";
+</script>
+{% endif %}
+<script>
+  const tracks = document.querySelectorAll('.track');
+  const spotifyPlayer = document.getElementById('spotify-player');
+
+  tracks.forEach(track => {
+    track.addEventListener('click', () => {
+      const trackUri = track.dataset.trackUri;
+      const playerUrl = `https://open.spotify.com/embed/track/${trackUri}`;
+      spotifyPlayer.src = playerUrl;
+      spotifyPlayer.style.display = 'block';
+    });
+  });
+</script>
+
+<script src="/static/js/chat.js"></script>
 {% endblock %}

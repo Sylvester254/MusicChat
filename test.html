@@ -1,65 +1,45 @@
-<!DOCTYPE html>
-<html>
+{% extends 'base.html' %} {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='js/index.js') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='/index.sass') }}">
 
-<head>
-    <title>Spotify Web Playback SDK Quick Start</title>
-</head>
+<div id="gradient">
 
-<body>
-    <h1>Spotify Web Playback SDK Quick Start</h1>
-    <button id="togglePlay">Toggle Play</button>
+    <div class="container">
+        <div class="jumbotron mt-3">
+            <h1 class="display-4">Welcome to MusicChat</h1>
+            <p class="lead">Discover new music, create playlists, and explore trending artists and albums on our platform.</p>
+            {% if not current_user.is_authenticated %}
+            <hr class="my-4">
+            <p>Join us today and enjoy the full functionality of the website.</p>
+            <a class="btn btn-primary btn-lg" href="{{ url_for('register') }}" role="button">Sign up</a>
+            <a class="btn btn-secondary btn-lg" href="{{ url_for('login') }}" role="button">Log in</a> {% endif %}
+        </div>
 
-    <script src="https://sdk.scdn.co/spotify-player.js"></script>
-    <script>
-        window.onSpotifyWebPlaybackSDKReady = () => {
-            const token = 'BQCb6tWRO-eDeJ94Eo2Lj7X9y1dG71S1nTdJ9WXowNV6mv8L00wHX2Q6xNtAwyGEQ0a4uLOu9dXMSTqTI5YFwNIUn7p2eN5zKrqGm5Ds9HKHnVlhH8-V';
-            const player = new Spotify.Player({
-                name: 'Web Playback SDK Quick Start Player',
-                getOAuthToken: cb => {
-                    cb(token);
-                },
-                volume: 0.5
-            });
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-center mb-4">Trending Artists and Albums</h2>
+                <!-- Replace this section with actual trending artists and albums -->
+                <div class="card-deck">
+                    {% for i in range(4) %}
+                    <div class="card">
+                        <img src="https://via.placeholder.com/150" class="card-img-top" alt="Album Art">
+                        <div class="card-body">
+                            <h5 class="card-title">Artist Name - Album Name</h5>
+                            <p class="card-text">Short description of the album or artist.</p>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">Last updated 3 mins ago</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-            // Ready
-            player.addListener('ready', ({
-                device_id
-            }) => {
-                console.log('Ready with Device ID', device_id);
-            });
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Include the gradient script -->
+<script src="gradient.js"></script>
 
-            // Not Ready
-            player.addListener('not_ready', ({
-                device_id
-            }) => {
-                console.log('Device ID has gone offline', device_id);
-            });
-
-            player.addListener('initialization_error', ({
-                message
-            }) => {
-                console.error(message);
-            });
-
-            player.addListener('authentication_error', ({
-                message
-            }) => {
-                console.error(message);
-            });
-
-            player.addListener('account_error', ({
-                message
-            }) => {
-                console.error(message);
-            });
-
-            document.getElementById('togglePlay').onclick = function() {
-                player.togglePlay();
-            };
-
-            player.connect();
-        }
-    </script>
-</body>
-
-</html>
+{% endblock %}

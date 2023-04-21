@@ -1,5 +1,7 @@
-from flask import render_template, request, redirect, url_for, flash, jsonify
+from flask import render_template, request, redirect, session, url_for, flash, jsonify
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from google.auth import jwt as google_jwt
+import jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import Form, StringField, PasswordField, validators, SubmitField
 from MCH import app, db
@@ -7,7 +9,17 @@ from MCH.models import User, Playlist, Track, ChatMessage
 import requests
 from MCH.spotify import search_spotify
 from flask_wtf import FlaskForm 
+from flask_wtf.csrf import generate_csrf
+from twilio.rest import Client
 from wtforms.validators import DataRequired
+from firebase_admin import auth, initialize_app
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import auth
+
+
+cred = credentials.Certificate("/home/silver/ALX-Software_engineering/musicchat-firebasekey.json")
+firebase_admin.initialize_app(cred)
 
 class PlaylistForm(FlaskForm):
     name = StringField('Playlist Name', validators=[DataRequired()])
@@ -46,11 +58,14 @@ class LoginForm(Form):
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html')
+    csrf_token = generate_csrf()
+    custom_token = session.get('custom_token', None)
+    return render_template('index.html', csrf_token=csrf_token, custom_token=custom_token)
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    csrf_token = generate_csrf()
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = RegistrationForm(request.form)
@@ -65,11 +80,12 @@ def register():
         db.session.commit()
         flash('Registration successful. Please log in.')
         return redirect(url_for('login'))
-    return render_template('register.html', form=form)
+    return render_template('register.html', form=form, csrf_token=csrf_token)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    csrf_token = generate_csrf()
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = LoginForm(request.form)
@@ -79,14 +95,24 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password, password):
             login_user(user)
+
+            # Generate a custom token for the user
+            custom_token = auth.create_custom_token(str(user.id))
+            print("Server-side Custom Token:", custom_token)
+
+            # Store the custom token in the user's session
+            session['custom_token'] = custom_token.decode('utf-8')
+
             return redirect(url_for('index'))
         flash('Invalid username or password.')
-    return render_template('login.html', form=form)
+    return render_template('login.html', form=form, csrf_token=csrf_token)
 
 
 @app.route('/logout')
 @login_required
 def logout():
+    if 'custom_token' in session:
+        session.pop('custom_token')
     logout_user()
     return redirect(url_for('index'))
 
@@ -94,15 +120,17 @@ def logout():
 @app.route('/search', methods=['GET', 'POST'])
 @login_required
 def search():
+    csrf_token = generate_csrf()
     if request.method == 'POST':
         query = request.form['search']
         results = search_spotify(query)
-        return render_template('search_results.html', results=results)
+        return render_template('search_results.html', results=results, csrf_token=csrf_token)
     return render_template('search.html')
 
 @app.route('/create_playlist', methods=['GET', 'POST'])
 @login_required
 def create_playlist():
+    csrf_token = generate_csrf()
     form = PlaylistForm(request.form)
     if request.method == 'POST' and form.validate():
         playlist = Playlist(name=form.name.data, user_id=current_user.id)
@@ -110,43 +138,49 @@ def create_playlist():
         db.session.commit()
         flash('Playlist created successfully.')
         return redirect(url_for('index'))
-    return render_template('create_playlist.html', form=form)
+
+    # Fetch user's playlists and their tracks
+    playlists = Playlist.query.filter_by(user_id=current_user.id).all()
+    for playlist in playlists:
+        playlist.tracks = Track.query.filter_by(playlist_id=playlist.id).all()
+
+    return render_template('create_playlist.html', form=form, csrf_token=csrf_token, playlists=playlists)
 
 @app.route('/add_to_playlist/<playlist_id>', methods=['POST'])
 @login_required
 def add_to_playlist(playlist_id):
     track_data = request.get_json().get('track_data')
+    
+    if track_data is None:
+        return jsonify(status='error', message='Error adding track to the playlist. Track data is missing.')
 
-    # Check if the track is already in the playlist
-    existing_track = Track.query.filter_by(playlist_id=playlist_id, spotify_track_id=track_data['id']).first()
-    if existing_track:
-        flash('This track is already in the playlist.')
-        return redirect(request.referrer)
+    else:
+        # Check if the track is already in the playlist
+        existing_track = Track.query.filter_by(playlist_id=playlist_id, spotify_track_id=track_data['id']).first()
+        if existing_track:
+            return jsonify(status='warning', message='This track is already in the playlist.')
 
-    # Create a new Track object and add it to the playlist
-    track = Track(
-        title=track_data['name'],
-        artist=track_data['artists'],
-        album=track_data['album'],
-        playlist_id=playlist_id,
-        spotify_track_id=track_data['id'],
-        track_uri=track_data['uri'],
-        album_uri=track_data['album_uri'],
-        artist_uri=track_data['artist_uri'],
-        album_cover_url=track_data['album_cover_url'],
-        release_date=track_data['release_date']
-    )
-    db.session.add(track)
-    db.session.commit()
-    flash('Track added to the playlist.')
-    return redirect(request.referrer)
+        # Create a new Track object and add it to the playlist
+        track = Track(
+            title=track_data['name'],
+            artist=track_data['artists'][0]['name'],
+            album=track_data['album']['name'],
+            playlist_id=playlist_id,
+            spotify_track_id=track_data['id'],
+            track_uri=track_data['uri'],
+            album_uri=track_data['album']['uri'],
+            artist_uri=track_data['artists'][0]['uri'],
+            album_cover_url=track_data['album']['images'][0]['url'],
+            release_date=track_data['album']['release_date']
+        )
 
+        db.session.add(track)
+        db.session.commit()
+        return jsonify(status='success', message='Track added to the playlist.')
 
-
-# Add a route for fetching track details using the Spotify API
-@app.route('/track/<track_id>')
+@app.route('/chat')
 @login_required
-def track_details(track_id):
-    # Call the Spotify API track endpoint with the track_id
-    # Parse the track details and render them in the track details template
-    pass
+def chat():
+    custom_token = session.get('custom_token', None)
+    csrf_token = generate_csrf()
+    return render_template('chat.html', csrf_token=csrf_token, custom_token=custom_token)

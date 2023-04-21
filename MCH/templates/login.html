@@ -6,6 +6,7 @@
         <div class="card-body">
             <h2 class="card-title mb-4">Login</h2>
             <form method="POST" action="{{ url_for('login') }}">
+                {{ form.csrf_token }}
                 <div class="mb-3">
                     <label for="username" class="form-label">Username</label>
                     <input type="text" class="form-control" id="username" name="username" required>

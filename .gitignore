@@ -1,0 +1,24 @@
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-analytics.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+    
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyAwSv3sZDBlj5GkbOEEdpDP2OlkPKbLPp0",
+        authDomain: "musicchat-485c3.firebaseapp.com",
+        databaseURL: "https://musicchat-485c3-default-rtdb.firebaseio.com",
+        projectId: "musicchat-485c3",
+        storageBucket: "musicchat-485c3.appspot.com",
+        messagingSenderId: "342433137765",
+        appId: "1:342433137765:web:b5b03d9219285a8ba6b28c",
+        measurementId: "G-6BWXNRZ62G"
+      };
+    
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>

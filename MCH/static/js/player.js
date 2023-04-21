@@ -8,6 +8,19 @@ playButtons.forEach(button => {
         spotifyPlayer.style.display = 'block';
     });
 });
+// choose playlist first
+document.addEventListener('DOMContentLoaded', function() {
+    const playlistSelect = document.getElementById('playlist-select');
+    const addToPlaylistButton = document.getElementById('add-to-playlist');
+
+    playlistSelect.addEventListener('change', function() {
+        if (playlistSelect.value === 'Choose playlist') {
+            addToPlaylistButton.disabled = true;
+        } else {
+            addToPlaylistButton.disabled = false;
+        }
+    });
+});
 
 // Add track to playlist 
 const addToPlaylistButtons = document.querySelectorAll('.add-to-playlist');
@@ -30,13 +43,15 @@ addToPlaylistButtons.forEach(button => {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
-            body: JSON.stringify(trackData),
+            body: JSON.stringify({ track_data: trackData }),
         });
 
-        if (response.ok) {
-            alert('Track added to playlist.');
+        const data = await response.json();
+
+        if (data.status === 'error' || data.status === 'warning' || data.status === 'success') {
+            alert(data.message);
         } else {
-            alert('Error adding track to playlist.');
+            alert(data.message);
         }
     });
 });
