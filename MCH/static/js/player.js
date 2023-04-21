@@ -1,3 +1,4 @@
+// Play track on search results page
 const playButtons = document.querySelectorAll('.play-button');
 const spotifyPlayer = document.getElementById('spotify-player');
 
@@ -8,6 +9,19 @@ playButtons.forEach(button => {
         spotifyPlayer.style.display = 'block';
     });
 });
+
+// Play track on playlist page
+
+const tracks = document.querySelectorAll('.track');
+
+tracks.forEach(track => {
+    track.addEventListener('click', () => {
+        const trackId = track.dataset.trackId;
+        spotifyPlayer.src = `https://open.spotify.com/embed/track/${trackId}`;
+        spotifyPlayer.style.display = 'block';
+    });
+});
+
 // choose playlist first
 document.addEventListener('DOMContentLoaded', function() {
     const playlistSelect = document.getElementById('playlist-select');
@@ -26,10 +40,16 @@ document.addEventListener('DOMContentLoaded', function() {
 const addToPlaylistButtons = document.querySelectorAll('.add-to-playlist');
 
 addToPlaylistButtons.forEach(button => {
+    const selectElement = button.closest('.options').querySelector('.playlist-select');
+
+    selectElement.addEventListener('change', () => {
+        button.disabled = selectElement.value === 'select playlist';
+    });
+
     button.addEventListener('click', async() => {
         const trackId = button.getAttribute('data-track-id');
-        const playlistId = document.getElementById('playlist-select').value;
-        if (playlistId === 'Select a playlist') {
+        const playlistId = selectElement.value;
+        if (playlistId === 'select playlist') {
             alert('Please select a playlist.');
             return;
         }

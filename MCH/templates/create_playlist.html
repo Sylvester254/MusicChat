@@ -15,7 +15,7 @@
   </form>
 </div>
 <!-- Spotify player iframe -->
-<iframe id="spotify-player" src="" width="400" height="100" frameborder="0" allowtransparency="true" allow="encrypted-media" style="display: none;"></iframe>
+<iframe id="spotify-player" src="" width="100%" height="200" frameborder="0" allowtransparency="true" allow="encrypted-media" style="display: none;"></iframe>
 
 <div class="container">
   <h2>Current Playlists</h2>
@@ -26,7 +26,7 @@
         <div class="playlist-title">{{ playlist.name }}</div>
         <ul class="track-list">
           {% for track in playlist.tracks %}
-          <li class="track" data-track-uri="{{ track.track_uri }}">
+          <li class="track" data-track-id="{{ track.spotify_track_id }}">
             <a class="track-link">
               <span class="track-title">{{ track.title }}</span>
               <span class="track-artist">{{ track.artist }}</span>
@@ -46,19 +46,8 @@
   var displayName = "{{ current_user.display_name }}";
 </script>
 {% endif %}
-<script>
-  const tracks = document.querySelectorAll('.track');
-  const spotifyPlayer = document.getElementById('spotify-player');
-
-  tracks.forEach(track => {
-    track.addEventListener('click', () => {
-      const trackUri = track.dataset.trackUri;
-      const playerUrl = `https://open.spotify.com/embed/track/${trackUri}`;
-      spotifyPlayer.src = playerUrl;
-      spotifyPlayer.style.display = 'block';
-    });
-  });
-</script>
 
 <script src="/static/js/chat.js"></script>
+<script src="/static/js/player.js"></script>
+
 {% endblock %}

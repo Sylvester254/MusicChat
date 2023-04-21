@@ -5,7 +5,7 @@
 
 <h1 class="text-center mb-4">Search results</h1>
 <!-- Spotify player iframe -->
-<iframe id="spotify-player" src="" width="400" height="100" frameborder="0" allowtransparency="true" allow="encrypted-media" style="display: none;"></iframe>
+<iframe id="spotify-player" src="" width="100%" height="200" frameborder="0" allowtransparency="true" allow="encrypted-media" style="display: none;"></iframe>
 
 <div class="search-results">
   {% for result in results %}
@@ -18,12 +18,12 @@
     <p>Artist(s): {{ result.artists | join(', ', attribute='name') }}</p>
     <p>Album: {{ result.album.name }}</p>
     <div class="options">
-      <select id="playlist-select" class="form-select form-select-sm">
+      <select class="playlist-select form-select form-select-sm">
         <option selected>select playlist</option>
         {% for playlist in current_user.playlists %}
         <option value="{{ playlist.id }}">{{ playlist.name }}</option>
         {% endfor %}
-      </select>
+      </select>      
       <button class="add-to-playlist btn btn-secondary btn-sm" id="add-to-playlist" data-track-id="{{ result.id }}" data-track-data='{{ result | tojson | replace('"', '&quot;') }}' disabled>Add
       </button>
       <a href="#" class="text-warning">
