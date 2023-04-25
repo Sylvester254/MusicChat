@@ -176,6 +176,7 @@ a {
 .navigation--main {
     float: right;
     text-transform: uppercase;
+    font-weight: bold;
 }
 
 .navigation--main>ul {
@@ -539,8 +540,18 @@ footer {
     font-weight: bold;
 }
 
+.back-to-search {
+    background-color: #ce3d90;
+    color: white;
+    font-size: 16px;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
 
-/* padding: 0 1em;
-font-weight: bold;
-
-} */
+.back-to-search:hover {
+    background-color: #ce3d90;
+    color: white;
+    opacity: 0.7;
+}
