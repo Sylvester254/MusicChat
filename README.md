@@ -15,6 +15,17 @@ a. **Spotipy/Spotify API:** MusicChat leverages the Spotipy library to interact 
 b. **Firebase Realtime Database:** The chatroom functionality in MusicChat is powered by Firebase Realtime Database, which enables real-time updates and communication among users. Firebase synchronizes and stores chat messages, allowing users to experience a live and engaging chat environment.
 
 ## Code Execution:
+- Head over to [Spotify](https://developer.spotify.com/):
+    - create a developer account,
+    - create an app at the dashboard,
+    - go to the settings of the app you created and copy the client id and client secret
+    
+- Create a .env file inside the MCH directory and add the access keys to Spotify:
+```
+SPOTIFY_CLIENT_ID = 'your-client-id'
+
+SPOTIFY_CLIENT_SECRET = 'your-client-secret'
+```
 - To run locally, start the virtual environment:  `source musicChat/bin/activate`
 - cd to MusicChat then run `python3 run.py`
 
