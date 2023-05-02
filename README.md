@@ -15,3 +15,13 @@ Spotify API and Twilio API.
 ## Code Execution:
 - To run locally, start the virtual environment:  `source musicChat/bin/activate`
 - then: `export FLASK_APP=__init__.py` followed by `flask run`
+
+<img src='MCH/static/img/img1.png' style='width: 80%; height: auto; border-radius:8px;'>
+
+<img src='MCH/static/img/img2.png' style='width: 80%; height: auto; border-radius:8px;'>
+
+<img src='MCH/static/img/img5.png' style='width: 80%; height: auto; border-radius:8px;'>
+
+<img src='MCH/static/img/img3.png' style='width: 80%; height: auto; border-radius:8px;'>
+
+<img src='MCH/static/img/img4.png' style='width: 80%; height: auto; border-radius:8px;'>

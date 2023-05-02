@@ -37,4 +37,4 @@ class ChatMessage(db.Model):
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    # Add other fields as needed, e.g., recipient_id
+    
