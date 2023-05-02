@@ -16,7 +16,7 @@ b. **Firebase Realtime Database:** The chatroom functionality in MusicChat is po
 
 ## Code Execution:
 - To run locally, start the virtual environment:  `source musicChat/bin/activate`
-- then: `export FLASK_APP=__init__.py` followed by `flask run`
+- cd to MusicChat then run `python3 run.py`
 
 <img src='MCH/static/img/img1.png' style='width: 80%; height: auto; border-radius:8px;'>
 
